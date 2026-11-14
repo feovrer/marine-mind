@@ -22,6 +22,7 @@
   --bg:#141A19; --panel:#1E2725; --ink:#ECF1EF; --muted:#A3ADA9; --line:#33403D;
   --accent:#5FC1B8; --accent-ink:#0E1615; --mud:#C29A78; --chip:#26302E; color-scheme:dark}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
 .wrap{max-width:1120px;margin:0 auto;display:grid;gap:20px}
@@ -86,6 +87,51 @@ details ul{margin:8px 0 0;padding-left:20px;color:var(--muted);font-size:15px}
 .status{font-size:14px;padding:10px 12px;border-radius:12px}
 .status.ok{background:#E3F4E8;color:#1F5E33}.status.err{background:#FDE8E4;color:#8A2A18}
 .typing{color:var(--muted);font-size:14px}
+.tabs{display:inline-flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px;justify-self:start}
+.tabs button{font-family:var(--display);font-size:17px;border:0;background:transparent;color:var(--muted);border-radius:999px;padding:7px 16px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.t-h2{font-family:var(--display);font-weight:400;font-size:24px;margin:0}
+.t-login{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+.t-login label{flex:1;min-width:200px}
+.t-login input{font:inherit;color:var(--ink);background:var(--chip);border:2px solid var(--line);border-radius:12px;padding:9px 12px;width:100%}
+.btn{text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.t-err{background:#FDE8E4;color:#8A2A18;border-radius:12px;padding:10px 12px;margin:0}
+.t-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.t-stats{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.t-count{font-family:var(--display);font-size:22px}
+.t-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.t-toggle{display:inline-flex;gap:6px;align-items:center;font-size:15px}
+.t-filters{display:flex;flex-wrap:wrap;gap:6px}
+.t-f{font:inherit;font-size:15px;border:2px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:5px 12px 5px 8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.t-f i{width:16px;height:16px;border-radius:50%;display:block}
+.t-f[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.t-f b{font-weight:400;color:var(--muted);font-variant-numeric:tabular-nums}
+.t-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px;margin-top:16px}
+.t-item{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:10px;display:grid;gap:8px;min-width:0}
+.t-thumb{position:relative;aspect-ratio:63/88;border-radius:12px;overflow:hidden;background:var(--chip);cursor:zoom-in;border:0;padding:0;width:100%}
+.t-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.t-fail{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:12px;color:var(--muted);font-size:14px}
+.t-meta{display:grid;gap:2px}
+.t-who{font-family:var(--display);font-size:18px}
+.t-what{font-size:15px}
+.t-when{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.t-side{display:flex;gap:6px}
+.t-side button{flex:1;font:inherit;font-size:14px;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:10px;padding:4px 0;cursor:pointer}
+.t-side button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.t-badge{display:inline-block;font-size:12px;border-radius:999px;padding:1px 8px;color:#fff;vertical-align:middle;margin-left:4px}
+.t-empty{text-align:center;padding:40px 16px;color:var(--muted);grid-column:1/-1}
+.t-empty strong{display:block;font-family:var(--display);font-weight:400;font-size:22px;color:var(--ink);margin-bottom:6px}
+dialog{border:0;border-radius:20px;padding:0;max-width:min(960px,calc(100vw - 32px));width:100%;background:var(--panel);color:var(--ink)}
+dialog::backdrop{background:rgba(10,20,18,.6)}
+.t-dlg{padding:18px;display:grid;gap:14px}
+.t-dlg-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.t-dlg-head h2{font-family:var(--display);font-weight:400;margin:0;font-size:24px}
+.t-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.t-pair img{width:100%;border-radius:12px;background:var(--chip);aspect-ratio:63/88;object-fit:cover}
+.t-texts{display:grid;gap:6px;font-size:15px}
+.t-texts b{font-family:var(--display);font-weight:400;color:var(--accent)}
+.t-links{display:flex;flex-wrap:wrap;gap:8px}
+@media (max-width:560px){.t-pair{grid-template-columns:1fr}}
 </style>
 <script src="config.js"></script>
 </head>
@@ -95,8 +141,9 @@ details ul{margin:8px 0 0;padding-left:20px;color:var(--muted);font-size:15px}
     <h1>🦀 갯벌 마음 카드 공방</h1>
     <p>신의도 갯벌 생물의 진짜 모습과 내 마음을 한 장의 카드에 담아요. 고르고, 쓰고, 제출하면 끝!</p>
   </header>
+  <div class="tabs" role="tablist" aria-label="화면 선택"><button type="button" role="tab" id="tabStudent" aria-selected="true">🎨 학생용</button><button type="button" role="tab" id="tabTeacher" aria-selected="false">📋 교사용</button></div>
 
-  <div class="grid">
+  <div class="grid" id="studentView">
     <form class="panel" id="form" autocomplete="off">
       <div class="step">
         <h2><span class="n">1</span>감정 계열 고르기</h2>
@@ -155,7 +202,7 @@ details ul{margin:8px 0 0;padding-left:20px;color:var(--muted);font-size:15px}
         <ul>
           <li>저장되는 카드는 63×88mm 보드게임 카드 크기, 약 300dpi예요. 인쇄 업체에 그대로 보내거나 A4에 배치해 출력하면 돼요.</li>
           <li>모서리는 각진 상태로 저장돼요. 인쇄 후 모서리 라운딩기로 둥글게 다듬으면 미리보기처럼 보여요.</li>
-          <li>학생이 제출한 카드는 교사 화면(teacher.html)에서 모아 볼 수 있어요.</li>
+          <li>학생이 제출한 카드는 위쪽 「📋 교사용」 화면에서 비밀번호를 넣고 모아 볼 수 있어요.</li>
         </ul>
       </details>
     </form>
@@ -168,7 +215,41 @@ details ul{margin:8px 0 0;padding-left:20px;color:var(--muted);font-size:15px}
       <p class="note">글을 쓰면 카드에 바로 보여요. 글이 길면 글자가 저절로 작아져요.</p>
     </section>
   </div>
+
+  <section id="teacherView" hidden>
+    <div class="panel" id="tLoginBox" style="max-width:560px">
+      <h2 class="t-h2">📋 교사용 화면</h2>
+      <p class="hint" style="margin:0">학생들이 제출한 카드를 모아 봐요. 비밀번호를 넣어 주세요.</p>
+      <form class="t-login" id="tLoginForm">
+        <label for="tPw">교사 비밀번호<input type="password" id="tPw" autocomplete="current-password" inputmode="numeric"></label>
+        <button class="btn" type="submit" id="tLoginBtn">들어가기</button>
+      </form>
+      <p class="t-err" id="tLoginErr" hidden></p>
+    </div>
+    <div id="tBoard" hidden>
+      <div class="panel" style="gap:12px">
+        <div class="t-toolbar">
+          <div class="t-stats"><span class="t-count" id="tCount">0장</span><span id="tPeople" style="color:var(--muted)"></span></div>
+          <div class="t-tools">
+            <label class="t-toggle"><input type="checkbox" id="tLatest" checked>학생별 마지막 제출만</label>
+            <button class="btn ghost" type="button" id="tReload">새로고침</button>
+            <a class="btn ghost" id="tFolder" target="_blank" rel="noopener">드라이브 폴더 열기</a>
+          </div>
+        </div>
+        <div class="t-filters" id="tFilters" role="group" aria-label="감정 계열로 거르기"></div>
+      </div>
+      <div class="t-grid" id="tGrid"></div>
+    </div>
+  </section>
 </div>
+<dialog id="dlg">
+  <div class="t-dlg">
+    <div class="t-dlg-head"><h2 id="dTitle"></h2><button class="btn ghost" type="button" id="dClose">닫기</button></div>
+    <div class="t-pair"><img id="dFront" alt="앞면"><img id="dBack" alt="뒷면"></div>
+    <div class="t-texts" id="dTexts"></div>
+    <div class="t-links" id="dLinks"></div>
+  </div>
+</dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -587,6 +668,122 @@ $('form').addEventListener('submit', e => e.preventDefault());
 $('chatChips').addEventListener('click', e => { const b=e.target.closest('button'); if (b) ask(b.textContent + ' 그려 줘'); });
 
 let tt; function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('on'),2200); }
+})();
+</script>
+<script>
+(() => {
+  const st=document.getElementById('studentView'), te=document.getElementById('teacherView');
+  const a=document.getElementById('tabStudent'), b=document.getElementById('tabTeacher');
+  function show(teacher){ st.hidden=teacher; te.hidden=!teacher; a.setAttribute('aria-selected',!teacher); b.setAttribute('aria-selected',teacher);
+    if (teacher){ const pw=document.getElementById('tPw'); if (!document.getElementById('tLoginBox').hidden) pw.focus(); }
+    const want = teacher ? '#teacher' : ''; if (location.hash !== want) history.replaceState(null,'',want || location.pathname+location.search); }
+  a.onclick=()=>show(false); b.onclick=()=>show(true);
+  show(location.hash==='#teacher');
+  window.addEventListener('hashchange',()=>show(location.hash==='#teacher'));
+})();
+</script>
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const API = (window.GAETBEOL_CONFIG && window.GAETBEOL_CONFIG.APPS_SCRIPT_URL) || 'https://script.google.com/macros/s/AKfycbxuqM-hJEQUm_87YrWetTAUqf8TAYgsrpsq-qiy0zEdI0KZLJq1d_c4X41mf4_UWCc/exec';
+const COLORS = {'기쁨':'#C98A00','편안':'#4E8F33','슬픔':'#2F79B9','화남':'#D6542A','불안':'#7450BD'};
+const BG = {'기쁨':'#FFE07A','편안':'#BFE3A6','슬픔':'#A8D3F3','화남':'#FFB487','불안':'#CBB6F1'};
+let items = [], filter = '전체', folderUrl = '';
+const thumb = (id, w) => `https://drive.google.com/thumbnail?id=${encodeURIComponent(id)}&sz=w${w||600}`;
+
+async function load(pw){
+  if (!API || API.indexOf('script.google.com') < 0) throw new Error('config.js에 Apps Script 주소가 아직 없어요.');
+  const res = await fetch(API, {method:'POST', body: JSON.stringify({action:'list', pw})});
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || '목록을 불러오지 못했어요.');
+  items = data.items.map(x => Object.assign(x, {t: new Date(x.time)})).sort((a,b) => b.t - a.t);
+  folderUrl = data.folderUrl || '';
+}
+
+$('tLoginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const pw = $('tPw').value; const btn = $('tLoginBtn'); btn.disabled = true; btn.textContent = '불러오는 중…';
+  try { await load(pw); try { sessionStorage.setItem('gaetbeol-pw', pw); } catch(_){}
+    $('tLoginBox').hidden = true; $('tBoard').hidden = false; render(); }
+  catch(err){ $('tLoginErr').hidden = false; $('tLoginErr').textContent = err.message; }
+  finally { btn.disabled = false; btn.textContent = '들어가기'; }
+});
+try { const saved = sessionStorage.getItem('gaetbeol-pw'); if (saved){ $('tPw').value = saved; } } catch(_){}
+
+$('tReload').addEventListener('click', async () => {
+  const b = $('tReload'); b.disabled = true; b.textContent = '불러오는 중…';
+  try { await load($('tPw').value); render(); } catch(err){ alertBox(err.message); }
+  finally { b.disabled = false; b.textContent = '새로고침'; }
+});
+$('tLatest').addEventListener('change', render);
+
+function visible(){
+  let list = items;
+  if ($('tLatest').checked){
+    const seen = new Set();
+    list = list.filter(x => { const k = `${x.team}|${x.name}`; if (seen.has(k)) return false; seen.add(k); return true; });
+  }
+  return list;
+}
+function render(){
+  const base = visible();
+  const counts = {'전체': base.length}; Object.keys(COLORS).forEach(k => counts[k] = base.filter(x => x.cat === k).length);
+  $('tFilters').innerHTML = '';
+  ['전체', ...Object.keys(COLORS)].forEach(k => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 't-f'; b.setAttribute('aria-pressed', k === filter);
+    b.innerHTML = (k === '전체' ? '' : `<i style="background:${BG[k]};box-shadow:0 0 0 2px ${COLORS[k]} inset"></i>`) + `${k} <b>${counts[k]}</b>`;
+    b.onclick = () => { filter = k; render(); };
+    $('tFilters').appendChild(b);
+  });
+  const list = filter === '전체' ? base : base.filter(x => x.cat === filter);
+  $('tCount').textContent = `${list.length}장`;
+  const people = new Set(items.map(x => `${x.team}|${x.name}`)).size;
+  $('tPeople').textContent = `· 제출한 학생 ${people}명`;
+  if (folderUrl){ $('tFolder').href = folderUrl; $('tFolder').hidden = false; } else $('tFolder').hidden = true;
+  const grid = $('tGrid'); grid.innerHTML = '';
+  if (!list.length){
+    grid.innerHTML = `<div class="panel t-empty" style="grid-column:1/-1"><strong>아직 제출된 카드가 없어요</strong>학생들이 카드 페이지에서 「선생님께 제출하기」를 누르면 여기에 모여요. 새로고침을 눌러 확인하세요.</div>`;
+    return;
+  }
+  list.forEach(x => grid.appendChild(card(x)));
+}
+function card(x){
+  const el = document.createElement('article'); el.className = 't-item';
+  const btn = document.createElement('button'); btn.className = 't-thumb'; btn.type = 'button'; btn.setAttribute('aria-label', `${x.name} 카드 크게 보기`);
+  const img = document.createElement('img'); img.loading = 'lazy'; img.alt = `${x.emo} ${x.creature} 카드`; img.src = thumb(x.front);
+  img.onerror = () => { img.remove(); const f = document.createElement('div'); f.className = 't-fail'; f.textContent = '미리보기를 불러오지 못했어요. 크게 보기에서 드라이브 링크로 열 수 있어요.'; btn.appendChild(f); };
+  btn.appendChild(img); btn.onclick = () => open(x);
+  const side = document.createElement('div'); side.className = 't-side';
+  [['앞면', x.front], ['뒷면', x.back]].forEach(([label, id], i) => {
+    const s = document.createElement('button'); s.type = 'button'; s.textContent = label; s.setAttribute('aria-pressed', i === 0);
+    s.onclick = () => { const im = btn.querySelector('img'); if (im) im.src = thumb(id); side.querySelectorAll('button').forEach(o => o.setAttribute('aria-pressed', o === s)); };
+    side.appendChild(s);
+  });
+  const meta = document.createElement('div'); meta.className = 't-meta';
+  const who = document.createElement('div'); who.className = 't-who'; who.textContent = `${x.team} ${x.name}`;
+  const what = document.createElement('div'); what.className = 't-what'; what.textContent = `${x.emo} ${x.creature}`;
+  const badge = document.createElement('span'); badge.className = 't-badge'; badge.style.background = COLORS[x.cat] || '#888'; badge.textContent = x.cat; what.appendChild(badge);
+  const when = document.createElement('div'); when.className = 't-when'; when.textContent = x.t.toLocaleString('ko-KR', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'});
+  meta.append(who, what, when);
+  el.append(btn, side, meta);
+  return el;
+}
+function open(x){
+  $('dTitle').textContent = `${x.team} ${x.name} · ${x.emo} ${x.creature}`;
+  $('dFront').src = thumb(x.front, 1200); $('dBack').src = thumb(x.back, 1200);
+  $('dTexts').innerHTML = '';
+  [['진짜 생태 이야기', x.eco], ['이럴 때 나도 이 감정이 들어요', x.when], ['이 감정이 들 때 나를 돕는 방법', x.help]].forEach(([k, v]) => {
+    const p = document.createElement('div'); const b = document.createElement('b'); b.textContent = k + ' '; p.append(b, document.createTextNode(v || '—')); $('dTexts').appendChild(p);
+  });
+  $('dLinks').innerHTML = '';
+  [['앞면 원본(인쇄용)', x.frontUrl], ['뒷면 원본(인쇄용)', x.backUrl]].forEach(([k, u]) => {
+    if (!u) return; const a = document.createElement('a'); a.className = 'btn ghost'; a.href = u; a.target = '_blank'; a.rel = 'noopener'; a.textContent = k; $('dLinks').appendChild(a);
+  });
+  $('dlg').showModal();
+}
+$('dClose').onclick = () => $('dlg').close();
+$('dlg').addEventListener('click', e => { if (e.target === $('dlg')) $('dlg').close(); });
+function alertBox(m){ const p = document.createElement('p'); p.className = 't-err'; p.textContent = m; $('tGrid').prepend(p); setTimeout(() => p.remove(), 4000); }
 })();
 </script>
 </body>
