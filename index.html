@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>갯벌 마음 카드 공방</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
+<style>
+/* Layout: workbench — form column on the left, live card preview pinned on the right; stacks on phones */
+:root{
+  --bg:#EAF1EF; --panel:#FFFFFF; --ink:#2F2A24; --muted:#6B6A62; --line:#D5DEDA;
+  --accent:#1E6F6B; --accent-ink:#FFFFFF; --mud:#8A6A4F; --chip:#F3F6F5;
+  --display:'Jua','Gowun Dodum','Noto Sans KR',sans-serif;
+  --body:'Gowun Dodum','Noto Sans KR','Apple SD Gothic Neo',sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141A19; --panel:#1E2725; --ink:#ECF1EF; --muted:#A3ADA9; --line:#33403D;
+  --accent:#5FC1B8; --accent-ink:#0E1615; --mud:#C29A78; --chip:#26302E; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141A19; --panel:#1E2725; --ink:#ECF1EF; --muted:#A3ADA9; --line:#33403D;
+  --accent:#5FC1B8; --accent-ink:#0E1615; --mud:#C29A78; --chip:#26302E; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:1120px;margin:0 auto;display:grid;gap:20px}
+header h1{font-family:var(--display);font-weight:400;font-size:clamp(28px,5vw,40px);margin:0;letter-spacing:.5px;text-wrap:balance}
+header p{margin:4px 0 0;color:var(--muted)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:20px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}.preview{position:static!important;order:-1}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;display:grid;gap:22px;min-width:0}
+.step{display:grid;gap:10px}
+.step h2{font-family:var(--display);font-weight:400;font-size:21px;margin:0;display:flex;align-items:center;gap:10px}
+.step h2 .n{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:16px}
+.hint{font-size:14px;color:var(--muted);margin:-4px 0 0}
+.cats{display:flex;flex-wrap:wrap;gap:8px}
+.cat{display:flex;align-items:center;gap:8px;border:2px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:7px 14px 7px 8px;font:inherit;cursor:pointer}
+.cat i{width:22px;height:22px;border-radius:50%;display:block}
+.cat[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.creatures{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+.cr{border:2px solid var(--line);background:var(--chip);border-radius:14px;padding:6px 4px 8px;cursor:pointer;font:inherit;color:var(--ink);display:grid;justify-items:center;gap:2px;font-size:14px}
+.cr img{width:64px;height:52px;object-fit:contain}
+.cr[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.cr.up{border-style:dashed}
+.cr.up span.plus{width:64px;height:52px;display:grid;place-items:center;font-size:30px;color:var(--muted)}
+label{display:grid;gap:4px;font-size:15px}
+label small{color:var(--muted)}
+input[type=text],textarea{font:inherit;color:var(--ink);background:var(--chip);border:2px solid var(--line);border-radius:12px;padding:9px 12px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:64px}
+input:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.count{justify-self:end;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.preview{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px)}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cards figure{margin:0;display:grid;gap:6px;justify-items:center;min-width:0}
+.cards canvas{width:100%;height:auto;border-radius:16px;box-shadow:0 6px 18px rgba(30,40,38,.18);background:#fff}
+.cards figcaption{font-family:var(--display);color:var(--muted)}
+.btn{font-family:var(--display);font-size:19px;border:0;border-radius:14px;padding:12px 18px;cursor:pointer;background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:var(--chip);color:var(--ink);border:2px solid var(--line)}
+.btn:disabled{opacity:.5;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+#result{display:grid;gap:12px}
+#result .imgs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#result img{width:100%;border-radius:12px;border:1px solid var(--line)}
+.note{font-size:14px;color:var(--muted);background:var(--chip);border-radius:12px;padding:10px 12px}
+details{border-top:1px solid var(--line);padding-top:14px}
+summary{cursor:pointer;font-family:var(--display);font-size:18px}
+details ul{margin:8px 0 0;padding-left:20px;color:var(--muted);font-size:15px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:15px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+.chat{border:2px solid var(--line);border-radius:16px;background:var(--chip);display:grid;gap:0;overflow:hidden}
+.chat-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);font-family:var(--display);font-size:18px}
+.chat-log{max-height:340px;overflow-y:auto;padding:12px;display:grid;gap:10px;align-content:start}
+.msg{max-width:88%;padding:9px 12px;border-radius:14px;font-size:15px;line-height:1.5;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere}
+.msg.me{justify-self:end;background:var(--accent);color:var(--accent-ink);border-bottom-right-radius:4px}
+.msg.bot{justify-self:start;background:var(--panel);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.bot img{display:block;width:180px;max-width:100%;height:auto;background:#fff;border-radius:10px;margin-bottom:6px}
+.msg.bot button{font:inherit;font-size:14px;border:0;border-radius:10px;padding:6px 10px;background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.chat-form{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line)}
+.chat-form input{flex:1}
+.chat-form button{font-family:var(--display);font-size:16px;border:0;border-radius:12px;padding:0 14px;background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 10px}
+.chips button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:4px 10px;cursor:pointer}
+.status{font-size:14px;padding:10px 12px;border-radius:12px}
+.status.ok{background:#E3F4E8;color:#1F5E33}.status.err{background:#FDE8E4;color:#8A2A18}
+.typing{color:var(--muted);font-size:14px}
+</style>
+<script src="config.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🦀 갯벌 마음 카드 공방</h1>
+    <p>신의도 갯벌 생물의 진짜 모습과 내 마음을 한 장의 카드에 담아요. 고르고, 쓰고, 제출하면 끝!</p>
+  </header>
+
+  <div class="grid">
+    <form class="panel" id="form" autocomplete="off">
+      <div class="step">
+        <h2><span class="n">1</span>감정 계열 고르기</h2>
+        <div class="cats" id="cats" role="group" aria-label="감정 계열"></div>
+      </div>
+
+      <div class="step">
+        <h2><span class="n">2</span>갯벌 생물 고르기</h2>
+        <p class="hint">직접 그린 그림이나 찍은 사진을 넣고 싶으면 '내 그림·사진'을 눌러요.</p>
+        <div class="creatures" id="creatures" role="group" aria-label="갯벌 생물"></div>
+        <input type="file" id="upload" accept="image/*" hidden>
+        <div class="chat" id="chat">
+          <div class="chat-head"><span>🤖 그림 그려 주는 챗봇</span><small class="typing" id="chatState"></small></div>
+          <div class="chat-log" id="chatLog" aria-live="polite">
+            <div class="msg bot">안녕! 카드에 넣을 갯벌 생물 그림을 그려 줄게요. 어떤 생물이 어떤 기분인지 말해 줘요.
+예) "깜짝 놀란 칠게 그려 줘"</div>
+          </div>
+          <div class="chips" id="chatChips">
+            <button type="button">신나서 춤추는 짱뚱어</button><button type="button">걱정하는 소라게</button><button type="button">편안하게 쉬는 조개</button>
+          </div>
+          <div class="chat-form" id="chatForm"><input type="text" id="chatInput" maxlength="120" placeholder="예) 더 웃는 얼굴로 바꿔 줘" aria-label="챗봇에게 보낼 말"><button type="button" id="chatSend">보내기</button></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <h2><span class="n">3</span>앞면 쓰기</h2>
+        <div class="row2">
+          <label for="emo">감정 이름 <input type="text" id="emo" maxlength="6" value="떨리는"></label>
+          <label for="crname">생물 이름 <input type="text" id="crname" maxlength="8" value="짱뚱어"></label>
+        </div>
+      </div>
+
+      <div class="step">
+        <h2><span class="n">4</span>뒷면 쓰기</h2>
+        <label for="eco">🐚 진짜 생태 이야기 <small>도감이나 검색으로 찾은 이 생물의 실제 특징</small>
+          <textarea id="eco" maxlength="40">위협을 느끼면 펄쩍 뛰어 갯벌 구멍으로 쏙 숨어요</textarea><span class="count" data-for="eco"></span></label>
+        <label for="when">💗 이럴 때 나도 이 감정이 들어요
+          <textarea id="when" maxlength="40">친구들 앞에서 발표하기 바로 전에</textarea><span class="count" data-for="when"></span></label>
+        <label for="help">🌱 이 감정이 들 때 나를 돕는 방법
+          <textarea id="help" maxlength="40">숨 크게 세 번, 첫 문장 떠올리기</textarea><span class="count" data-for="help"></span></label>
+        <div class="row2">
+          <label for="team">모둠 <input type="text" id="team" maxlength="6" value="3모둠"></label>
+          <label for="maker">이름 <input type="text" id="maker" maxlength="8" value="○○○"></label>
+        </div>
+      </div>
+
+      <div class="step">
+        <h2><span class="n">5</span>카드 제출하기</h2>
+        <label for="code">반 코드 <small>선생님이 알려 준 코드를 써요</small><input type="text" id="code" maxlength="20"></label>
+        <div class="actions"><button type="button" class="btn" id="submit">선생님께 제출하기</button><button type="button" class="btn ghost" id="saveLocal">내 기기에 저장</button></div>
+        <div class="status" id="submitStatus" hidden></div>
+      </div>
+
+      <details>
+        <summary>선생님 안내</summary>
+        <ul>
+          <li>저장되는 카드는 63×88mm 보드게임 카드 크기, 약 300dpi예요. 인쇄 업체에 그대로 보내거나 A4에 배치해 출력하면 돼요.</li>
+          <li>모서리는 각진 상태로 저장돼요. 인쇄 후 모서리 라운딩기로 둥글게 다듬으면 미리보기처럼 보여요.</li>
+          <li>학생이 제출한 카드는 교사 화면(teacher.html)에서 모아 볼 수 있어요.</li>
+        </ul>
+      </details>
+    </form>
+
+    <section class="panel preview" aria-label="카드 미리보기">
+      <div class="cards">
+        <figure><canvas id="cvFront" width="756" height="1056" aria-label="카드 앞면 미리보기"></canvas><figcaption>앞면</figcaption></figure>
+        <figure><canvas id="cvBack" width="756" height="1056" aria-label="카드 뒷면 미리보기"></canvas><figcaption>뒷면</figcaption></figure>
+      </div>
+      <p class="note">글을 쓰면 카드에 바로 보여요. 글이 길면 글자가 저절로 작아져요.</p>
+    </section>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+const W = 756, H = 1056;
+const CATS = {
+  joy:   {name:'기쁨', bg:'#FFE07A', top:'#FFF3BF', deep:'#C98A00', paper:'#FFFAE6', ink:'#5A4300'},
+  calm:  {name:'편안', bg:'#BFE3A6', top:'#E6F5DA', deep:'#4E8F33', paper:'#F2F9EC', ink:'#2E5520'},
+  sad:   {name:'슬픔', bg:'#A8D3F3', top:'#DDEFFC', deep:'#2F79B9', paper:'#EEF6FD', ink:'#1D4A73'},
+  angry: {name:'화남', bg:'#FFB487', top:'#FFE0CC', deep:'#D6542A', paper:'#FFF2EA', ink:'#7A2E14'},
+  worry: {name:'불안', bg:'#CBB6F1', top:'#EAE1FB', deep:'#7450BD', paper:'#F5F0FD', ink:'#43297A'},
+};
+const O = '#3E4A3A';
+const CR = {
+ mudskipper:{name:'짱뚱어', vb:[300,230], svg:`
+  <ellipse cx="150" cy="208" rx="128" ry="16" fill="#8A6A4F"/>
+  <path d="M62 152 Q22 122 20 162 Q24 198 64 172 Z" fill="#7C8F6A" stroke="${O}" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M122 114 Q142 64 182 82 Q202 94 198 114 Z" fill="#9AB0E8" stroke="${O}" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="152" cy="94" r="4.5" fill="#5B74C8"/><circle cx="172" cy="96" r="4.5" fill="#5B74C8"/><circle cx="162" cy="106" r="3.5" fill="#5B74C8"/>
+  <path d="M57 160 Q72 112 152 110 Q237 108 257 152 Q264 186 222 190 L92 190 Q57 188 57 160 Z" fill="#9CB083" stroke="${O}" stroke-width="4" stroke-linejoin="round"/>
+  <ellipse cx="172" cy="172" rx="70" ry="13" fill="#D9E3C8"/>
+  <circle cx="122" cy="142" r="3.5" fill="#6F8259"/><circle cx="142" cy="130" r="3.5" fill="#6F8259"/><circle cx="107" cy="162" r="3.5" fill="#6F8259"/>
+  <circle cx="207" cy="100" r="23" fill="#fff" stroke="${O}" stroke-width="4"/><circle cx="242" cy="106" r="21" fill="#fff" stroke="${O}" stroke-width="4"/>
+  <circle cx="210" cy="102" r="9" fill="#2B2B2B"/><circle cx="245" cy="108" r="8.5" fill="#2B2B2B"/>
+  <circle cx="213" cy="98" r="3" fill="#fff"/><circle cx="248" cy="104" r="3" fill="#fff"/>
+  <path d="M232 152 q12 9 24 0" stroke="${O}" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <ellipse cx="222" cy="140" rx="9" ry="5" fill="#F4A3A3" opacity=".85"/>
+  <path d="M167 162 Q180 192 202 188 Q198 168 182 154 Z" fill="#7C8F6A" stroke="${O}" stroke-width="4" stroke-linejoin="round"/>`},
+ fiddler:{name:'농게', vb:[300,230], svg:`
+  <ellipse cx="150" cy="210" rx="120" ry="14" fill="#8A6A4F"/>
+  <g stroke="#B4472A" stroke-width="9" stroke-linecap="round" fill="none">
+   <path d="M95 160 L60 185"/><path d="M100 170 L72 202"/><path d="M110 176 L92 208"/>
+   <path d="M205 160 L232 188"/><path d="M200 170 L218 205"/></g>
+  <path d="M128 112 L116 62 M172 112 L184 62" stroke="${O}" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="114" cy="56" r="15" fill="#fff" stroke="${O}" stroke-width="4"/><circle cx="186" cy="56" r="15" fill="#fff" stroke="${O}" stroke-width="4"/>
+  <circle cx="116" cy="58" r="6.5" fill="#2B2B2B"/><circle cx="188" cy="58" r="6.5" fill="#2B2B2B"/>
+  <path d="M78 124 Q150 84 222 124 Q234 176 150 184 Q66 176 78 124 Z" fill="#E36A3B" stroke="${O}" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M215 128 Q236 110 246 96" stroke="${O}" stroke-width="13" stroke-linecap="round"/><path d="M215 128 Q236 110 246 96" stroke="#E36A3B" stroke-width="6" stroke-linecap="round"/>
+  <path d="M232 104 C238 52 292 40 292 82 C292 120 258 132 236 120 Z" fill="#F6E4C4" stroke="${O}" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M250 92 C268 70 286 76 284 92" fill="none" stroke="${O}" stroke-width="4" stroke-linecap="round"/>
+  <ellipse cx="62" cy="138" rx="19" ry="13" fill="#E36A3B" stroke="${O}" stroke-width="4"/>
+  <path d="M136 150 q14 10 28 0" stroke="${O}" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <ellipse cx="116" cy="144" rx="9" ry="5" fill="#F7B0A0"/><ellipse cx="184" cy="144" rx="9" ry="5" fill="#F7B0A0"/>`},
+ sentinel:{name:'칠게', vb:[300,230], svg:`
+  <ellipse cx="150" cy="210" rx="125" ry="14" fill="#8A6A4F"/>
+  <g stroke="#6E7A55" stroke-width="8" stroke-linecap="round" fill="none">
+   <path d="M80 160 L48 182"/><path d="M84 172 L58 202"/><path d="M96 180 L80 210"/>
+   <path d="M220 160 L252 182"/><path d="M216 172 L242 202"/><path d="M204 180 L220 210"/></g>
+  <path d="M122 110 L92 58 M178 110 L208 58" stroke="${O}" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="90" cy="54" r="13" fill="#fff" stroke="${O}" stroke-width="4"/><circle cx="210" cy="54" r="13" fill="#fff" stroke="${O}" stroke-width="4"/>
+  <circle cx="92" cy="56" r="6" fill="#2B2B2B"/><circle cx="208" cy="56" r="6" fill="#2B2B2B"/>
+  <rect x="68" y="104" width="164" height="80" rx="34" fill="#93A07A" stroke="${O}" stroke-width="4"/>
+  <ellipse cx="56" cy="124" rx="18" ry="12" fill="#B5BE98" stroke="${O}" stroke-width="4"/><ellipse cx="244" cy="124" rx="18" ry="12" fill="#B5BE98" stroke="${O}" stroke-width="4"/>
+  <circle cx="112" cy="128" r="4" fill="#6E7A55"/><circle cx="190" cy="132" r="4" fill="#6E7A55"/><circle cx="160" cy="118" r="3.5" fill="#6E7A55"/>
+  <path d="M136 154 q14 10 28 0" stroke="${O}" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <ellipse cx="114" cy="150" rx="9" ry="5" fill="#E9A99A"/><ellipse cx="186" cy="150" rx="9" ry="5" fill="#E9A99A"/>`},
+ hermit:{name:'소라게', vb:[300,230], svg:`
+  <ellipse cx="150" cy="212" rx="120" ry="14" fill="#C8B08C"/>
+  <path d="M168 28 C248 28 278 112 244 172 L124 176 C92 120 100 28 168 28 Z" fill="#EDCDA2" stroke="${O}" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M178 70 c26 0 36 32 12 44 c-18 9 -34 -10 -22 -22 c8 -8 18 -2 15 6" stroke="${O}" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M130 60 q10 -14 26 -16 M128 100 q8 -10 20 -12" stroke="#C99F6E" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <g stroke="#C94F37" stroke-width="8" stroke-linecap="round" fill="none"><path d="M84 190 L60 206"/><path d="M104 196 L94 212"/><path d="M140 194 L150 212"/></g>
+  <path d="M100 124 L86 82 M128 122 L130 80" stroke="${O}" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="84" cy="76" r="13" fill="#fff" stroke="${O}" stroke-width="4"/><circle cx="130" cy="74" r="13" fill="#fff" stroke="${O}" stroke-width="4"/>
+  <circle cx="86" cy="78" r="6" fill="#2B2B2B"/><circle cx="132" cy="76" r="6" fill="#2B2B2B"/>
+  <ellipse cx="112" cy="164" rx="46" ry="38" fill="#E5684D" stroke="${O}" stroke-width="4"/>
+  <ellipse cx="64" cy="176" rx="17" ry="12" fill="#E5684D" stroke="${O}" stroke-width="4"/><ellipse cx="160" cy="182" rx="15" ry="11" fill="#E5684D" stroke="${O}" stroke-width="4"/>
+  <path d="M100 168 q12 9 24 0" stroke="${O}" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <ellipse cx="88" cy="160" rx="8" ry="4.5" fill="#F7B0A0"/><ellipse cx="136" cy="160" rx="8" ry="4.5" fill="#F7B0A0"/>`},
+ clam:{name:'조개', vb:[300,230], svg:`
+  <ellipse cx="150" cy="210" rx="118" ry="14" fill="#C8B08C"/>
+  <path d="M150 42 C236 42 276 120 254 190 L46 190 C24 120 64 42 150 42 Z" fill="#F4D9B8" stroke="${O}" stroke-width="4" stroke-linejoin="round"/>
+  <g stroke="#C9A27A" stroke-width="4" stroke-linecap="round"><path d="M150 188 L70 84"/><path d="M150 188 L104 54"/><path d="M150 188 L150 44"/><path d="M150 188 L196 54"/><path d="M150 188 L230 84"/></g>
+  <rect x="118" y="186" width="64" height="18" rx="9" fill="#D9B48C" stroke="${O}" stroke-width="4"/>
+  <circle cx="122" cy="132" r="15" fill="#fff" stroke="${O}" stroke-width="4"/><circle cx="178" cy="132" r="15" fill="#fff" stroke="${O}" stroke-width="4"/>
+  <circle cx="124" cy="134" r="7" fill="#2B2B2B"/><circle cx="180" cy="134" r="7" fill="#2B2B2B"/>
+  <path d="M138 160 q12 9 24 0" stroke="${O}" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <ellipse cx="102" cy="156" rx="9" ry="5" fill="#F4A3A3"/><ellipse cx="198" cy="156" rx="9" ry="5" fill="#F4A3A3"/>`},
+ octopus:{name:'낙지', vb:[300,230], svg:`
+  <ellipse cx="150" cy="214" rx="118" ry="12" fill="#8A6A4F"/>
+  <g fill="none" stroke-linecap="round">
+   <g stroke="${O}" stroke-width="24"><path d="M112 140 C92 172 58 166 66 200"/><path d="M136 146 C130 184 108 196 122 214"/><path d="M164 146 C170 184 192 196 178 214"/><path d="M188 140 C208 172 242 166 234 200"/></g>
+   <g stroke="#D08F7D" stroke-width="16"><path d="M112 140 C92 172 58 166 66 200"/><path d="M136 146 C130 184 108 196 122 214"/><path d="M164 146 C170 184 192 196 178 214"/><path d="M188 140 C208 172 242 166 234 200"/></g></g>
+  <path d="M150 22 C212 22 228 88 212 128 C200 154 100 154 88 128 C72 88 88 22 150 22 Z" fill="#D08F7D" stroke="${O}" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="126" cy="100" r="16" fill="#fff" stroke="${O}" stroke-width="4"/><circle cx="174" cy="100" r="16" fill="#fff" stroke="${O}" stroke-width="4"/>
+  <circle cx="128" cy="102" r="7" fill="#2B2B2B"/><circle cx="176" cy="102" r="7" fill="#2B2B2B"/>
+  <path d="M140 128 q10 8 20 0" stroke="${O}" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <ellipse cx="106" cy="122" rx="8" ry="4.5" fill="#F2A79C"/><ellipse cx="194" cy="122" rx="8" ry="4.5" fill="#F2A79C"/>
+  <circle cx="132" cy="52" r="6" fill="#E3AE9F"/><circle cx="170" cy="46" r="4" fill="#E3AE9F"/>`},
+ samphire:{name:'함초', vb:[300,230], svg:`
+  <ellipse cx="150" cy="210" rx="110" ry="14" fill="#8A6A4F"/>
+  <g stroke="${O}" stroke-width="4">
+   <ellipse cx="96" cy="190" rx="18" ry="16" fill="#7EAD4C"/><ellipse cx="94" cy="162" rx="16" ry="15" fill="#7EAD4C"/><ellipse cx="92" cy="136" rx="14" ry="13" fill="#9AAE4A"/><ellipse cx="91" cy="113" rx="11" ry="11" fill="#C9543F"/>
+   <ellipse cx="204" cy="190" rx="18" ry="16" fill="#7EAD4C"/><ellipse cx="206" cy="162" rx="16" ry="15" fill="#7EAD4C"/><ellipse cx="208" cy="136" rx="14" ry="13" fill="#9AAE4A"/><ellipse cx="209" cy="113" rx="11" ry="11" fill="#C9543F"/>
+   <ellipse cx="150" cy="188" rx="24" ry="20" fill="#7EAD4C"/><ellipse cx="150" cy="148" rx="30" ry="26" fill="#7EAD4C"/><ellipse cx="150" cy="104" rx="22" ry="20" fill="#9AAE4A"/><ellipse cx="150" cy="70" rx="17" ry="16" fill="#C9543F"/><ellipse cx="150" cy="44" rx="12" ry="12" fill="#B8402F"/></g>
+  <circle cx="140" cy="146" r="5.5" fill="#2B2B2B"/><circle cx="160" cy="146" r="5.5" fill="#2B2B2B"/>
+  <circle cx="141.5" cy="144" r="2" fill="#fff"/><circle cx="161.5" cy="144" r="2" fill="#fff"/>
+  <path d="M143 158 q7 6 14 0" stroke="${O}" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="130" cy="156" rx="6" ry="3.5" fill="#F4A3A3"/><ellipse cx="170" cy="156" rx="6" ry="3.5" fill="#F4A3A3"/>`},
+ gull:{name:'갈매기', vb:[300,230], svg:`
+  <ellipse cx="150" cy="212" rx="110" ry="12" fill="#C8B08C"/>
+  <path d="M140 176 L134 206 M164 176 L168 206" stroke="#E79A2E" stroke-width="7" stroke-linecap="round"/>
+  <path d="M126 206 h16 M160 206 h16" stroke="#E79A2E" stroke-width="7" stroke-linecap="round"/>
+  <path d="M66 132 L28 114 L40 150 Z" fill="#4A4F55" stroke="${O}" stroke-width="4" stroke-linejoin="round"/>
+  <ellipse cx="150" cy="140" rx="90" ry="50" fill="#FFFFFF" stroke="${O}" stroke-width="4"/>
+  <path d="M86 122 C120 96 182 104 196 136 C164 162 112 158 86 122 Z" fill="#B9C4CE" stroke="${O}" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M110 128 q20 10 44 8" stroke="#8D99A4" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <circle cx="212" cy="94" r="40" fill="#FFFFFF" stroke="${O}" stroke-width="4"/>
+  <path d="M246 92 L282 100 L246 110 Z" fill="#F2C230" stroke="${O}" stroke-width="4" stroke-linejoin="round"/><circle cx="270" cy="104" r="3" fill="#D9452E"/>
+  <circle cx="222" cy="86" r="7" fill="#2B2B2B"/><circle cx="224" cy="84" r="2.5" fill="#fff"/>
+  <ellipse cx="228" cy="108" rx="8" ry="4.5" fill="#F4B3B3"/>`},
+};
+
+const S = {cat:'worry', cr:'mudskipper', upload:null};
+const $ = id => document.getElementById(id);
+const imgCache = {};
+function svgImg(key){
+  if (imgCache[key]) return imgCache[key];
+  const c = CR[key];
+  const s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${c.vb[0]} ${c.vb[1]}" width="${c.vb[0]*2}" height="${c.vb[1]*2}">${c.svg}</svg>`;
+  const im = new Image();
+  im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
+  imgCache[key] = im;
+  im.onload = schedule;
+  return im;
+}
+
+/* ---------- UI build ---------- */
+const catsEl = $('cats');
+for (const [k,c] of Object.entries(CATS)){
+  const b = document.createElement('button');
+  b.type='button'; b.className='cat'; b.dataset.k=k; b.setAttribute('aria-pressed', k===S.cat);
+  b.innerHTML = `<i style="background:${c.bg};box-shadow:0 0 0 2px ${c.deep} inset"></i>${c.name}`;
+  b.onclick = () => { S.cat=k; catsEl.querySelectorAll('.cat').forEach(x=>x.setAttribute('aria-pressed', x.dataset.k===k)); schedule(); };
+  catsEl.appendChild(b);
+}
+const crEl = $('creatures');
+for (const [k,c] of Object.entries(CR)){
+  const b = document.createElement('button');
+  b.type='button'; b.className='cr'; b.dataset.k=k; b.setAttribute('aria-pressed', k===S.cr);
+  const im = svgImg(k).cloneNode(); im.alt='';
+  b.appendChild(im); b.appendChild(document.createTextNode(c.name));
+  b.onclick = () => { S.cr=k; S.upload=null; markCr(k); $('crname').value=c.name; schedule(); };
+  crEl.appendChild(b);
+}
+const up = document.createElement('button');
+up.type='button'; up.className='cr up'; up.dataset.k='upload'; up.setAttribute('aria-pressed','false');
+up.innerHTML = '<span class="plus">＋</span>내 그림·사진';
+up.onclick = () => $('upload').click();
+crEl.appendChild(up);
+function markCr(k){ crEl.querySelectorAll('.cr').forEach(x=>x.setAttribute('aria-pressed', x.dataset.k===k)); }
+$('upload').addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => { const im = new Image(); im.onload = () => { S.upload = im; S.uploadFit='cover'; S.cr='upload'; markCr('upload'); schedule(); }; im.src = r.result; };
+  r.readAsDataURL(f);
+  e.target.value='';
+});
+['emo','crname','eco','when','help','team','maker'].forEach(id => $(id).addEventListener('input', () => { updateCounts(); schedule(); }));
+function updateCounts(){ document.querySelectorAll('.count').forEach(s => { const t=$(s.dataset.for); s.textContent = `${t.value.length} / ${t.maxLength}`; }); }
+updateCounts();
+
+/* ---------- drawing helpers ---------- */
+const FD = "'Jua','Gowun Dodum','Noto Sans KR',sans-serif";
+const FB = "'Gowun Dodum','Noto Sans KR',sans-serif";
+function rr(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function hexA(hex,a){ const n=parseInt(hex.slice(1),16); return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`; }
+function fitText(ctx,text,font,max,min,width){ let s=max; for(;s>min;s-=2){ ctx.font=`${s}px ${font}`; if(ctx.measureText(text).width<=width) break; } ctx.font=`${s}px ${font}`; return s; }
+function wrapLines(ctx,text,width){
+  const words = text.trim().split(/\s+/); const lines=[]; let cur='';
+  const pushWord = w => {
+    if (ctx.measureText(w).width <= width){ const t = cur ? cur+' '+w : w; if (ctx.measureText(t).width<=width) cur=t; else { lines.push(cur); cur=w; } return; }
+    for (const ch of w){ const t=cur+ch; if (ctx.measureText(t).width<=width) cur=t; else { lines.push(cur); cur=ch; } }
+  };
+  words.forEach(w => { if (w) pushWord(w); });
+  if (cur) lines.push(cur);
+  return lines;
+}
+function fitParagraph(ctx,text,font,max,min,width,maxLines){
+  let s=max, lines=[];
+  for(;s>=min;s-=2){ ctx.font=`${s}px ${font}`; lines=wrapLines(ctx,text,width); if(lines.length<=maxLines) break; }
+  if (s<min){ s=min; ctx.font=`${s}px ${font}`; lines=wrapLines(ctx,text,width).slice(0,maxLines); }
+  return {size:s, lines};
+}
+function rand(seed){ let x=seed; return () => (x = (x*16807)%2147483647) / 2147483647; }
+function waves(ctx,y,amp,len,color,phase){
+  ctx.beginPath(); ctx.moveTo(0,H);
+  ctx.lineTo(0,y);
+  for (let x=0;x<=W;x+=6) ctx.lineTo(x, y + Math.sin((x/len)*Math.PI*2 + phase)*amp);
+  ctx.lineTo(W,H); ctx.closePath(); ctx.fillStyle=color; ctx.fill();
+}
+function star(ctx,x,y,r,color){
+  ctx.beginPath(); ctx.moveTo(x,y-r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.quadraticCurveTo(x,y,x,y+r); ctx.quadraticCurveTo(x,y,x-r,y); ctx.quadraticCurveTo(x,y,x,y-r);
+  ctx.fillStyle=color; ctx.fill();
+}
+function drop(ctx,x,y,s,fill,stroke){
+  ctx.beginPath(); ctx.moveTo(x,y-s*1.4); ctx.bezierCurveTo(x+s*1.1,y-s*.2,x+s,y+s,x,y+s); ctx.bezierCurveTo(x-s,y+s,x-s*1.1,y-s*.2,x,y-s*1.4); ctx.closePath();
+  ctx.fillStyle=fill; ctx.fill(); ctx.lineWidth=4; ctx.strokeStyle=stroke; ctx.stroke();
+}
+function heart(ctx,x,y,s,color){
+  ctx.beginPath(); ctx.moveTo(x,y+s*.9);
+  ctx.bezierCurveTo(x-s*1.4,y,x-s*.7,y-s*1.1,x,y-s*.35);
+  ctx.bezierCurveTo(x+s*.7,y-s*1.1,x+s*1.4,y,x,y+s*.9); ctx.closePath(); ctx.fillStyle=color; ctx.fill();
+}
+function decorate(ctx,cat,cx,cy,R){
+  const c=CATS[cat]; ctx.save(); ctx.lineCap='round';
+  if (cat==='joy'){ star(ctx,cx+R*.86,cy-R*.72,30,'#FFFFFF'); star(ctx,cx+R*.98,cy-R*.36,16,'#FFF8D6'); star(ctx,cx-R*.9,cy-R*.6,20,'#FFFFFF'); star(ctx,cx-R*.98,cy+R*.2,12,'#FFF8D6'); }
+  if (cat==='calm'){ heart(ctx,cx+R*.88,cy-R*.66,24,'#FFFFFF'); heart(ctx,cx-R*.92,cy-R*.5,16,'#F3FBEC');
+    ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=7; for(const [dx,dy] of [[-R*.98,R*.1],[R*.9,R*.05]]){ ctx.beginPath(); ctx.moveTo(cx+dx-26,cy+dy); ctx.quadraticCurveTo(cx+dx-13,cy+dy-12,cx+dx,cy+dy); ctx.quadraticCurveTo(cx+dx+13,cy+dy+12,cx+dx+26,cy+dy); ctx.stroke(); } }
+  if (cat==='sad'){ drop(ctx,cx+R*.86,cy-R*.62,20,'#DDF0FF',c.deep); drop(ctx,cx-R*.9,cy-R*.44,14,'#DDF0FF',c.deep); drop(ctx,cx+R*.98,cy-R*.18,10,'#DDF0FF',c.deep); }
+  if (cat==='angry'){ const x=cx+R*.84, y=cy-R*.7; ctx.strokeStyle='#E23B1E'; ctx.lineWidth=9;
+    for (const a of [0,1,2,3]){ ctx.save(); ctx.translate(x,y); ctx.rotate(a*Math.PI/2); ctx.beginPath(); ctx.moveTo(8,-22); ctx.quadraticCurveTo(8,-8,22,-8); ctx.stroke(); ctx.restore(); }
+    ctx.lineWidth=7; ctx.strokeStyle='#FFFFFF'; ctx.beginPath(); ctx.moveTo(cx-R*.98,cy-R*.5); ctx.lineTo(cx-R*.84,cy-R*.62); ctx.moveTo(cx-R*1.02,cy-R*.3); ctx.lineTo(cx-R*.86,cy-R*.36); ctx.stroke(); }
+  if (cat==='worry'){ drop(ctx,cx+R*.84,cy-R*.68,18,'#BFE3FB','#3D86C6'); drop(ctx,cx+R*.98,cy-R*.36,11,'#BFE3FB','#3D86C6');
+    ctx.strokeStyle='#FFFFFF'; ctx.lineWidth=7; ctx.beginPath(); ctx.moveTo(cx-R*.96,cy-R*.4); ctx.lineTo(cx-R*.8,cy-R*.32); ctx.moveTo(cx-R*1.0,cy-R*.15); ctx.lineTo(cx-R*.83,cy-R*.13); ctx.moveTo(cx-R*.96,cy+R*.1); ctx.lineTo(cx-R*.8,cy+R*.05); ctx.stroke(); }
+  ctx.restore();
+}
+
+/* ---------- front ---------- */
+function drawFront(ctx){
+  const c=CATS[S.cat];
+  const g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,c.top); g.addColorStop(.55,c.bg); g.addColorStop(1,c.bg);
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  const r=rand(7); ctx.fillStyle=hexA(c.deep,.10);
+  for(let i=0;i<70;i++){ ctx.beginPath(); ctx.arc(r()*W, 150+r()*800, 2+r()*5, 0, Math.PI*2); ctx.fill(); }
+  // title pill
+  ctx.font=`34px ${FD}`; const tt='신의 갯벌 마음 카드'; const tw=ctx.measureText(tt).width+56;
+  rr(ctx,(W-tw)/2,40,tw,62,31); ctx.fillStyle='rgba(255,255,255,.82)'; ctx.fill();
+  ctx.fillStyle=c.deep; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(tt,W/2,73);
+  // category badge
+  ctx.font=`26px ${FD}`; const cw=ctx.measureText(c.name).width+30;
+  rr(ctx,W-cw-34,52,cw,40,20); ctx.fillStyle=c.deep; ctx.fill(); ctx.fillStyle='#fff'; ctx.fillText(c.name,W-34-cw/2,74);
+  // circle
+  const cx=W/2, cy=430, R=262;
+  ctx.beginPath(); ctx.arc(cx,cy+10,R+16,0,Math.PI*2); ctx.fillStyle=hexA(c.deep,.18); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx,cy,R+16,0,Math.PI*2); ctx.fillStyle='#FFFFFF'; ctx.fill();
+  const rg=ctx.createRadialGradient(cx,cy-40,40,cx,cy,R); rg.addColorStop(0,'#FFFFFF'); rg.addColorStop(1,c.paper);
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fillStyle=rg; ctx.fill();
+  ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.clip();
+  if (S.cr==='upload' && S.upload && S.uploadFit==='contain'){
+    const im=S.upload, bw=470, s=bw/(im.naturalWidth||im.width), bh=(im.naturalHeight||im.height)*s;
+    ctx.drawImage(im, cx-bw/2, cy-bh/2+20, bw, bh);
+  } else if (S.cr==='upload' && S.upload){
+    const im=S.upload, s=Math.max(2*R/im.width, 2*R/im.height);
+    ctx.drawImage(im, cx-im.width*s/2, cy-im.height*s/2, im.width*s, im.height*s);
+  } else {
+    const im=svgImg(S.cr==='upload'?'mudskipper':S.cr);
+    if (im.complete && im.naturalWidth){ const bw=470, s=bw/im.naturalWidth, bh=im.naturalHeight*s; ctx.drawImage(im, cx-bw/2, cy-bh/2+30, bw, bh); }
+  }
+  ctx.restore();
+  ctx.lineWidth=6; ctx.strokeStyle=hexA(c.deep,.35); ctx.beginPath(); ctx.arc(cx,cy,R+16,0,Math.PI*2); ctx.stroke();
+  decorate(ctx,S.cat,cx,cy,R+16);
+  // waves
+  waves(ctx,962,14,380,hexA(c.deep,.22),0.6);
+  waves(ctx,995,12,300,hexA(c.deep,.38),2.2);
+  // emotion word
+  const emo=$('emo').value.trim()||'감정 이름';
+  ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+  fitText(ctx,emo,FD,138,60,640);
+  ctx.lineJoin='round'; ctx.lineWidth=18; ctx.strokeStyle='#FFFFFF'; ctx.strokeText(emo,W/2,860);
+  ctx.fillStyle=c.deep; ctx.fillText(emo,W/2,860);
+  // creature name pill
+  const nm=$('crname').value.trim()||'생물 이름';
+  const ns=fitText(ctx,nm,FD,44,26,420); const nw=ctx.measureText(nm).width+64;
+  rr(ctx,(W-nw)/2,890,nw,68,34); ctx.fillStyle='rgba(255,255,255,.9)'; ctx.fill();
+  ctx.fillStyle=c.ink; ctx.textBaseline='middle'; ctx.fillText(nm,W/2,925);
+}
+
+/* ---------- back ---------- */
+function icon(ctx,kind,x,y,c){
+  ctx.save(); ctx.beginPath(); ctx.arc(x,y,32,0,Math.PI*2); ctx.fillStyle=c.deep; ctx.fill();
+  ctx.fillStyle='#fff'; ctx.strokeStyle='#fff'; ctx.lineWidth=4; ctx.lineCap='round';
+  if (kind==='shell'){ ctx.beginPath(); ctx.moveTo(x,y-16); ctx.bezierCurveTo(x+22,y-16,x+24,y+4,x+18,y+14); ctx.lineTo(x-18,y+14); ctx.bezierCurveTo(x-24,y+4,x-22,y-16,x,y-16); ctx.fill();
+    ctx.strokeStyle=c.deep; ctx.lineWidth=3; ctx.beginPath(); for (const dx of [-10,0,10]){ ctx.moveTo(x,y+14); ctx.lineTo(x+dx,y-12); } ctx.stroke(); }
+  if (kind==='heart'){ heart(ctx,x,y+2,16,'#fff'); }
+  if (kind==='sprout'){ ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(x,y+16); ctx.lineTo(x,y-2); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(x-10,y-8,11,6,-0.6,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(x+10,y-10,11,6,0.6,0,Math.PI*2); ctx.fill(); }
+  ctx.restore();
+}
+function drawBack(ctx){
+  const c=CATS[S.cat];
+  ctx.fillStyle=c.paper; ctx.fillRect(0,0,W,H);
+  // header band with wavy edge
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(W,0); ctx.lineTo(W,176);
+  for (let x=W;x>=0;x-=6) ctx.lineTo(x, 176 + Math.sin((x/250)*Math.PI*2+1)*10);
+  ctx.closePath(); const g=ctx.createLinearGradient(0,0,0,190); g.addColorStop(0,c.top); g.addColorStop(1,c.bg); ctx.fillStyle=g; ctx.fill();
+  const title=`${$('emo').value.trim()||'감정'} ${$('crname').value.trim()||'생물'}`.trim();
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  fitText(ctx,title,FD,82,40,660);
+  ctx.lineJoin='round'; ctx.lineWidth=12; ctx.strokeStyle='rgba(255,255,255,.85)'; ctx.strokeText(title,W/2,98);
+  ctx.fillStyle=c.deep; ctx.fillText(title,W/2,98);
+  const secs=[['shell','진짜 생태 이야기',$('eco').value],['heart','이럴 때 나도 이 감정이 들어요',$('when').value],['sprout','이 감정이 들 때 나를 돕는 방법',$('help').value]];
+  let y=226; const bx=42, bw=W-84, bh=212;
+  for (const [k,h,t] of secs){
+    ctx.save(); ctx.shadowColor=hexA(c.deep,.18); ctx.shadowBlur=18; ctx.shadowOffsetY=6;
+    rr(ctx,bx,y,bw,bh,30); ctx.fillStyle='#FFFFFF'; ctx.fill(); ctx.restore();
+    icon(ctx,k,bx+52,y+50,c);
+    ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillStyle=c.deep;
+    fitText(ctx,h,FD,34,24,bw-120); ctx.fillText(h,bx+98,y+52);
+    const txt=t.trim();
+    if (txt){
+      const p=fitParagraph(ctx,txt,FB,40,26,bw-64,3);
+      const lh=p.size*1.38, total=lh*p.lines.length, top=y+88+(bh-96-total)/2+lh/2;
+      ctx.fillStyle='#2E2A26'; ctx.textAlign='center';
+      p.lines.forEach((ln,i)=>ctx.fillText(ln,W/2,top+i*lh));
+    } else {
+      ctx.strokeStyle='#CFCFCF'; ctx.lineWidth=3; ctx.setLineDash([10,10]);
+      for (const ly of [y+126,y+176]){ ctx.beginPath(); ctx.moveTo(bx+34,ly); ctx.lineTo(bx+bw-34,ly); ctx.stroke(); }
+      ctx.setLineDash([]);
+    }
+    y+=bh+22;
+  }
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  const team=$('team').value.trim(), maker=$('maker').value.trim();
+  ctx.fillStyle=c.ink; fitText(ctx,`만든 이 · ${team||'○모둠'} ${maker||'○○○'}`,FD,32,22,660);
+  ctx.fillText(`만든 이 · ${team||'○모둠'} ${maker||'○○○'}`,W/2,y+30);
+  ctx.font=`25px ${FB}`; ctx.fillStyle=hexA(c.ink,.75); ctx.fillText('2026 신안신의중학교 해양생태 연구학교',W/2,y+76);
+}
+
+/* ---------- render loop ---------- */
+const fctx=$('cvFront').getContext('2d'), bctx=$('cvBack').getContext('2d');
+let pending=false;
+function schedule(){ if(pending) return; pending=true; requestAnimationFrame(()=>{ pending=false; drawFront(fctx); drawBack(bctx); }); }
+schedule();
+if (document.fonts){
+  Promise.all([document.fonts.load(`40px Jua`,'갯벌'),document.fonts.load(`40px 'Gowun Dodum'`,'갯벌')]).then(schedule,schedule);
+  document.fonts.ready.then(schedule);
+}
+
+/* ---------- server ---------- */
+const API = (window.GAETBEOL_CONFIG && window.GAETBEOL_CONFIG.APPS_SCRIPT_URL) || 'https://script.google.com/macros/s/AKfycbxuqM-hJEQUm_87YrWetTAUqf8TAYgsrpsq-qiy0zEdI0KZLJq1d_c4X41mf4_UWCc/exec';
+async function call(action, payload){
+  if (!API || API.indexOf('script.google.com')<0) throw new Error('서버 주소가 아직 설정되지 않았어요. config.js를 확인해 주세요.');
+  const res = await fetch(API, {method:'POST', body: JSON.stringify(Object.assign({action}, payload))});
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || '요청을 처리하지 못했어요.');
+  return data;
+}
+try { const c = localStorage.getItem('gaetbeol-code'); if (c) $('code').value = c; } catch(e){}
+['team','maker'].forEach(id => { try { const v = localStorage.getItem('gaetbeol-'+id); if (v) $(id).value = v; } catch(e){} });
+
+/* ---------- submit ---------- */
+function setStatus(kind, text){ const s=$('submitStatus'); s.hidden=false; s.className='status '+kind; s.textContent=text; }
+$('submit').addEventListener('click', async () => {
+  const code=$('code').value.trim(), team=$('team').value.trim(), maker=$('maker').value.trim();
+  if (!code){ setStatus('err','반 코드를 써 주세요.'); $('code').focus(); return; }
+  if (!team || !maker || maker==='○○○'){ setStatus('err','모둠과 이름을 써 주세요.'); $('maker').focus(); return; }
+  try { localStorage.setItem('gaetbeol-code', code); localStorage.setItem('gaetbeol-team', team); localStorage.setItem('gaetbeol-maker', maker); } catch(e){}
+  drawFront(fctx); drawBack(bctx);
+  const btn=$('submit'); btn.disabled=true; btn.textContent='제출하는 중…';
+  try {
+    await call('submit', {
+      code, team, name: maker, cat: CATS[S.cat].name,
+      emo: $('emo').value.trim(), creature: $('crname').value.trim(),
+      eco: $('eco').value.trim(), when: $('when').value.trim(), help: $('help').value.trim(),
+      front: $('cvFront').toDataURL('image/png').split(',')[1],
+      back: $('cvBack').toDataURL('image/png').split(',')[1]
+    });
+    setStatus('ok', `제출했어요! (${new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}) 고치고 싶으면 수정해서 다시 제출하면 돼요.`);
+    toast('제출 완료!');
+  } catch(err) { setStatus('err', err.message); }
+  finally { btn.disabled=false; btn.textContent='선생님께 제출하기'; }
+});
+function fileBase(){ const clean=s=>s.replace(/[\\/:*?"<>|\s]+/g,'').slice(0,12); return [clean($('team').value)||'모둠',clean($('maker').value)||'이름',clean($('emo').value+$('crname').value)||'카드'].join('_'); }
+$('saveLocal').addEventListener('click', () => {
+  drawFront(fctx); drawBack(bctx);
+  const both=document.createElement('canvas'); both.width=W*2+60; both.height=H; const x=both.getContext('2d');
+  x.fillStyle='#FFFFFF'; x.fillRect(0,0,both.width,H); x.drawImage($('cvFront'),0,0); x.drawImage($('cvBack'),W+60,0);
+  const a=document.createElement('a'); a.href=both.toDataURL('image/png'); a.download=fileBase()+'_앞뒤.png'; document.body.appendChild(a); a.click(); a.remove();
+});
+
+/* ---------- chatbot ---------- */
+const history=[]; let busy=false;
+function addMsg(kind, text){ const d=document.createElement('div'); d.className='msg '+kind; if(text) d.textContent=text; $('chatLog').appendChild(d); $('chatLog').scrollTop=$('chatLog').scrollHeight; return d; }
+function cleanSvg(raw){
+  const doc=new DOMParser().parseFromString(raw,'image/svg+xml');
+  const svg=doc.documentElement;
+  if (!svg || svg.nodeName.toLowerCase()!=='svg' || doc.querySelector('parsererror')) throw new Error('그림을 읽지 못했어요. 다시 말해 줄래요?');
+  svg.querySelectorAll('script,foreignObject,image,use[href^="http"]').forEach(n=>n.remove());
+  svg.querySelectorAll('*').forEach(n=>[...n.attributes].forEach(a=>{ if(/^on/i.test(a.name)) n.removeAttribute(a.name); }));
+  svg.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  const vb=(svg.getAttribute('viewBox')||'0 0 300 240').split(/[\s,]+/).map(Number);
+  const vw=vb[2]||300, vh=vb[3]||240; if(!svg.getAttribute('viewBox')) svg.setAttribute('viewBox',`0 0 ${vw} ${vh}`);
+  svg.setAttribute('width', 600); svg.setAttribute('height', Math.round(600*vh/vw));
+  return new XMLSerializer().serializeToString(svg);
+}
+function svgToImg(raw){ const svg=cleanSvg(raw); return new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>rej(new Error('그림을 불러오지 못했어요.')); im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg); }); }
+async function ask(text){
+  if (busy || !text.trim()) return;
+  const code=$('code').value.trim();
+  addMsg('me', text);
+  if (!code){ addMsg('bot','먼저 5번의 "반 코드"를 써 주세요. 그래야 그림을 그릴 수 있어요.'); return; }
+  busy=true; $('chatState').textContent='그리는 중…';
+  history.push({role:'user', content:text});
+  try {
+    const data = await call('chat', {code, messages: history.slice(-6)});
+    if (data.svg){
+      history.push({role:'assistant', content:data.svg});
+      const im = await svgToImg(data.svg);
+      const d=addMsg('bot',''); const pv=im.cloneNode(); pv.alt='챗봇이 그린 그림'; d.appendChild(pv);
+      const b=document.createElement('button'); b.type='button'; b.textContent='이 그림 카드에 넣기';
+      b.onclick=()=>{ S.upload=im; S.uploadFit='contain'; S.cr='upload'; markCr('upload'); schedule(); toast('카드에 넣었어요'); };
+      d.appendChild(b);
+      d.appendChild(document.createTextNode('\n마음에 안 들면 "더 크게", "웃는 얼굴로"처럼 말해 줘요.'));
+    } else {
+      history.push({role:'assistant', content:data.text||''});
+      addMsg('bot', data.text || '다시 한 번 말해 줄래요?');
+    }
+  } catch(err){ history.pop(); addMsg('bot', err.message); }
+  finally { busy=false; $('chatState').textContent=''; }
+}
+function sendChat(){ const v=$('chatInput').value; $('chatInput').value=''; ask(v); }
+$('chatSend').addEventListener('click', sendChat);
+$('chatInput').addEventListener('keydown', e => { if (e.key==='Enter' && !e.isComposing){ e.preventDefault(); sendChat(); } });
+$('form').addEventListener('submit', e => e.preventDefault());
+$('chatChips').addEventListener('click', e => { const b=e.target.closest('button'); if (b) ask(b.textContent + ' 그려 줘'); });
+
+let tt; function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('on'),2200); }
+})();
+</script>
+</body>
+</html>
