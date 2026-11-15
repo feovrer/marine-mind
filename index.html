@@ -579,7 +579,7 @@ if (document.fonts){
 }
 
 /* ---------- server ---------- */
-const API = (window.GAETBEOL_CONFIG && window.GAETBEOL_CONFIG.APPS_SCRIPT_URL) || 'https://script.google.com/macros/s/AKfycbz3BCKdIoq3J9memAj9I7FY4rePA-9ONP8GdAcjQswCTSSYjF_4pHwMEPPwXIm_aCs/exec';
+const API = (window.GAETBEOL_CONFIG && window.GAETBEOL_CONFIG.APPS_SCRIPT_URL) || 'https://script.google.com/macros/s/AKfycbxMI_shIgOMVxfE6cizqcw-LnlmLdxm_Hjb9Cqtxzh_J46u_IAYNujgGnktbiukCyY/exec';
 async function call(action, payload){
   if (!API || API.indexOf('script.google.com')<0) throw new Error('서버 주소가 아직 설정되지 않았어요. config.js를 확인해 주세요.');
   const res = await fetch(API, {method:'POST', body: JSON.stringify(Object.assign({action}, payload))});
@@ -682,7 +682,7 @@ let tt; function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add(
 <script>
 (() => {
 const $ = id => document.getElementById(id);
-const API = (window.GAETBEOL_CONFIG && window.GAETBEOL_CONFIG.APPS_SCRIPT_URL) || 'https://script.google.com/macros/s/AKfycbz3BCKdIoq3J9memAj9I7FY4rePA-9ONP8GdAcjQswCTSSYjF_4pHwMEPPwXIm_aCs/exec';
+const API = (window.GAETBEOL_CONFIG && window.GAETBEOL_CONFIG.APPS_SCRIPT_URL) || 'https://script.google.com/macros/s/AKfycbxMI_shIgOMVxfE6cizqcw-LnlmLdxm_Hjb9Cqtxzh_J46u_IAYNujgGnktbiukCyY/exec';
 const COLORS = {'기쁨':'#C98A00','편안':'#4E8F33','슬픔':'#2F79B9','화남':'#D6542A','불안':'#7450BD'};
 const BG = {'기쁨':'#FFE07A','편안':'#BFE3A6','슬픔':'#A8D3F3','화남':'#FFB487','불안':'#CBB6F1'};
 let items = [], filter = '전체', folderUrl = '';
