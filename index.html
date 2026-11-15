@@ -192,7 +192,6 @@ dialog::backdrop{background:rgba(10,20,18,.6)}
 
       <div class="step">
         <h2><span class="n">5</span>카드 제출하기</h2>
-        <label for="code">반 코드 <small>선생님이 알려 준 코드를 써요</small><input type="text" id="code" maxlength="20"></label>
         <div class="actions"><button type="button" class="btn" id="submit">선생님께 제출하기</button><button type="button" class="btn ghost" id="saveLocal">내 기기에 저장</button></div>
         <div class="status" id="submitStatus" hidden></div>
       </div>
@@ -580,7 +579,7 @@ if (document.fonts){
 }
 
 /* ---------- server ---------- */
-const API = (window.GAETBEOL_CONFIG && window.GAETBEOL_CONFIG.APPS_SCRIPT_URL) || 'https://script.google.com/macros/s/AKfycbxuqM-hJEQUm_87YrWetTAUqf8TAYgsrpsq-qiy0zEdI0KZLJq1d_c4X41mf4_UWCc/exec';
+const API = (window.GAETBEOL_CONFIG && window.GAETBEOL_CONFIG.APPS_SCRIPT_URL) || 'https://script.google.com/macros/s/AKfycbz3BCKdIoq3J9memAj9I7FY4rePA-9ONP8GdAcjQswCTSSYjF_4pHwMEPPwXIm_aCs/exec';
 async function call(action, payload){
   if (!API || API.indexOf('script.google.com')<0) throw new Error('서버 주소가 아직 설정되지 않았어요. config.js를 확인해 주세요.');
   const res = await fetch(API, {method:'POST', body: JSON.stringify(Object.assign({action}, payload))});
@@ -588,16 +587,15 @@ async function call(action, payload){
   if (!data.ok) throw new Error(data.error || '요청을 처리하지 못했어요.');
   return data;
 }
-try { const c = localStorage.getItem('gaetbeol-code'); if (c) $('code').value = c; } catch(e){}
+const CLASS_CODE = 'gaetbeol';
 ['team','maker'].forEach(id => { try { const v = localStorage.getItem('gaetbeol-'+id); if (v) $(id).value = v; } catch(e){} });
 
 /* ---------- submit ---------- */
 function setStatus(kind, text){ const s=$('submitStatus'); s.hidden=false; s.className='status '+kind; s.textContent=text; }
 $('submit').addEventListener('click', async () => {
-  const code=$('code').value.trim(), team=$('team').value.trim(), maker=$('maker').value.trim();
-  if (!code){ setStatus('err','반 코드를 써 주세요.'); $('code').focus(); return; }
+  const code=CLASS_CODE, team=$('team').value.trim(), maker=$('maker').value.trim();
   if (!team || !maker || maker==='○○○'){ setStatus('err','모둠과 이름을 써 주세요.'); $('maker').focus(); return; }
-  try { localStorage.setItem('gaetbeol-code', code); localStorage.setItem('gaetbeol-team', team); localStorage.setItem('gaetbeol-maker', maker); } catch(e){}
+  try { localStorage.setItem('gaetbeol-team', team); localStorage.setItem('gaetbeol-maker', maker); } catch(e){}
   drawFront(fctx); drawBack(bctx);
   const btn=$('submit'); btn.disabled=true; btn.textContent='제출하는 중…';
   try {
@@ -639,9 +637,8 @@ function cleanSvg(raw){
 function svgToImg(raw){ const svg=cleanSvg(raw); return new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>rej(new Error('그림을 불러오지 못했어요.')); im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg); }); }
 async function ask(text){
   if (busy || !text.trim()) return;
-  const code=$('code').value.trim();
+  const code=CLASS_CODE;
   addMsg('me', text);
-  if (!code){ addMsg('bot','먼저 5번의 "반 코드"를 써 주세요. 그래야 그림을 그릴 수 있어요.'); return; }
   busy=true; $('chatState').textContent='그리는 중…';
   history.push({role:'user', content:text});
   try {
@@ -685,7 +682,7 @@ let tt; function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add(
 <script>
 (() => {
 const $ = id => document.getElementById(id);
-const API = (window.GAETBEOL_CONFIG && window.GAETBEOL_CONFIG.APPS_SCRIPT_URL) || 'https://script.google.com/macros/s/AKfycbxuqM-hJEQUm_87YrWetTAUqf8TAYgsrpsq-qiy0zEdI0KZLJq1d_c4X41mf4_UWCc/exec';
+const API = (window.GAETBEOL_CONFIG && window.GAETBEOL_CONFIG.APPS_SCRIPT_URL) || 'https://script.google.com/macros/s/AKfycbz3BCKdIoq3J9memAj9I7FY4rePA-9ONP8GdAcjQswCTSSYjF_4pHwMEPPwXIm_aCs/exec';
 const COLORS = {'기쁨':'#C98A00','편안':'#4E8F33','슬픔':'#2F79B9','화남':'#D6542A','불안':'#7450BD'};
 const BG = {'기쁨':'#FFE07A','편안':'#BFE3A6','슬픔':'#A8D3F3','화남':'#FFB487','불안':'#CBB6F1'};
 let items = [], filter = '전체', folderUrl = '';
