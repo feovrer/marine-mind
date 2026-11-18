@@ -133,7 +133,7 @@ dialog::backdrop{background:rgba(10,20,18,.6)}
 .t-links{display:flex;flex-wrap:wrap;gap:8px}
 @media (max-width:560px){.t-pair{grid-template-columns:1fr}}
 </style>
-<script src="config.js"></script>
+
 </head>
 <body>
 <div class="wrap">
@@ -228,7 +228,7 @@ dialog::backdrop{background:rgba(10,20,18,.6)}
     <div id="tBoard" hidden>
       <div class="panel" style="gap:12px">
         <div class="t-toolbar">
-          <div class="t-stats"><span class="t-count" id="tCount">0장</span><span id="tPeople" style="color:var(--muted)"></span></div>
+          <div class="t-stats"><span class="t-count" id="tCount">0장</span><span id="tPeople" style="color:var(--muted)"></span><span id="tAuto" style="color:var(--muted);font-size:13px">20초마다 새 제출을 자동으로 확인해요</span></div>
           <div class="t-tools">
             <label class="t-toggle"><input type="checkbox" id="tLatest" checked>학생별 마지막 제출만</label>
             <button class="btn ghost" type="button" id="tReload">새로고침</button>
@@ -579,7 +579,7 @@ if (document.fonts){
 }
 
 /* ---------- server ---------- */
-const API = (window.GAETBEOL_CONFIG && window.GAETBEOL_CONFIG.APPS_SCRIPT_URL) || 'https://script.google.com/macros/s/AKfycbzNVX5QPF20FLxRc8RhsYNkZUSqBGFcp9rBN4r1K1lwD0PflvKOJoSHgFP7XWN9_F8/exec';
+const API = (window.GAETBEOL_CONFIG && window.GAETBEOL_CONFIG.APPS_SCRIPT_URL) || 'https://script.google.com/macros/s/AKfycbwHzuO7-_0YuAaeiYSn27QW40ACE-Pp0EScY0X-30kvQqNV_qKXKgB1aMxkZw7TeDM/exec';
 async function call(action, payload){
   if (!API || API.indexOf('script.google.com')<0) throw new Error('서버 주소가 아직 설정되지 않았어요. config.js를 확인해 주세요.');
   const res = await fetch(API, {method:'POST', body: JSON.stringify(Object.assign({action}, payload))});
@@ -682,7 +682,7 @@ let tt; function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add(
 <script>
 (() => {
 const $ = id => document.getElementById(id);
-const API = (window.GAETBEOL_CONFIG && window.GAETBEOL_CONFIG.APPS_SCRIPT_URL) || 'https://script.google.com/macros/s/AKfycbzNVX5QPF20FLxRc8RhsYNkZUSqBGFcp9rBN4r1K1lwD0PflvKOJoSHgFP7XWN9_F8/exec';
+const API = (window.GAETBEOL_CONFIG && window.GAETBEOL_CONFIG.APPS_SCRIPT_URL) || 'https://script.google.com/macros/s/AKfycbwHzuO7-_0YuAaeiYSn27QW40ACE-Pp0EScY0X-30kvQqNV_qKXKgB1aMxkZw7TeDM/exec';
 const COLORS = {'기쁨':'#C98A00','편안':'#4E8F33','슬픔':'#2F79B9','화남':'#D6542A','불안':'#7450BD'};
 const BG = {'기쁨':'#FFE07A','편안':'#BFE3A6','슬픔':'#A8D3F3','화남':'#FFB487','불안':'#CBB6F1'};
 let items = [], filter = '전체', folderUrl = '';
@@ -701,7 +701,7 @@ $('tLoginForm').addEventListener('submit', async e => {
   e.preventDefault();
   const pw = $('tPw').value; const btn = $('tLoginBtn'); btn.disabled = true; btn.textContent = '불러오는 중…';
   try { await load(pw); try { sessionStorage.setItem('gaetbeol-pw', pw); } catch(_){}
-    $('tLoginBox').hidden = true; $('tBoard').hidden = false; render(); }
+    $('tLoginBox').hidden = true; $('tBoard').hidden = false; render(); startAuto(); }
   catch(err){ $('tLoginErr').hidden = false; $('tLoginErr').textContent = err.message; }
   finally { btn.disabled = false; btn.textContent = '들어가기'; }
 });
@@ -713,6 +713,26 @@ $('tReload').addEventListener('click', async () => {
   finally { b.disabled = false; b.textContent = '새로고침'; }
 });
 $('tLatest').addEventListener('change', render);
+
+/* 20초마다 새 제출 자동 확인 */
+let autoTimer = null, autoBusy = false;
+function startAuto(){
+  if (autoTimer) return;
+  autoTimer = setInterval(async () => {
+    if (autoBusy || document.hidden || $('tBoard').hidden || ($('dlg') && $('dlg').open)) return;
+    autoBusy = true;
+    const before = items.length;
+    try {
+      await load($('tPw').value);
+      const added = items.length - before;
+      render();
+      $('tAuto').textContent = '자동 확인 ' + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+      if (added > 0) tToast('새 카드 ' + added + '장이 들어왔어요');
+    } catch (e) { $('tAuto').textContent = '자동 확인 실패 · 새로고침을 눌러 주세요'; }
+    finally { autoBusy = false; }
+  }, 20000);
+}
+function tToast(m){ const t = document.getElementById('toast'); if (!t) return; t.textContent = m; t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 2600); }
 
 function visible(){
   let list = items;
