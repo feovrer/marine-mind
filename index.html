@@ -108,7 +108,7 @@ details ul{margin:8px 0 0;padding-left:20px;color:var(--muted);font-size:15px}
 .t-f b{font-weight:400;color:var(--muted);font-variant-numeric:tabular-nums}
 .t-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px;margin-top:16px}
 .t-item{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:10px;display:grid;gap:8px;min-width:0}
-.t-thumb{position:relative;aspect-ratio:63/88;border-radius:12px;overflow:hidden;background:var(--chip);cursor:zoom-in;border:0;padding:0;width:100%}
+.t-thumb{position:relative;aspect-ratio:55/85;border-radius:12px;overflow:hidden;background:var(--chip);cursor:zoom-in;border:0;padding:0;width:100%}
 .t-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .t-fail{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:12px;color:var(--muted);font-size:14px}
 .t-meta{display:grid;gap:2px}
@@ -127,7 +127,7 @@ dialog::backdrop{background:rgba(10,20,18,.6)}
 .t-dlg-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .t-dlg-head h2{font-family:var(--display);font-weight:400;margin:0;font-size:24px}
 .t-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.t-pair img{width:100%;border-radius:12px;background:var(--chip);aspect-ratio:63/88;object-fit:cover}
+.t-pair img{width:100%;border-radius:12px;background:var(--chip);aspect-ratio:55/85;object-fit:cover}
 .t-texts{display:grid;gap:6px;font-size:15px}
 .t-texts b{font-family:var(--display);font-weight:400;color:var(--accent)}
 .t-links{display:flex;flex-wrap:wrap;gap:8px}
@@ -199,7 +199,7 @@ dialog::backdrop{background:rgba(10,20,18,.6)}
       <details>
         <summary>선생님 안내</summary>
         <ul>
-          <li>저장되는 카드는 63×88mm 보드게임 카드 크기, 약 300dpi예요. 인쇄 업체에 그대로 보내거나 A4에 배치해 출력하면 돼요.</li>
+          <li>카드는 55×85mm 포토카드 크기(약 300dpi)로 만들어져요. 스냅스 포토카드(양면)에 앞면·뒷면 이미지를 그대로 올리면 돼요.</li>
           <li>모서리는 각진 상태로 저장돼요. 인쇄 후 모서리 라운딩기로 둥글게 다듬으면 미리보기처럼 보여요.</li>
           <li>학생이 제출한 카드는 위쪽 「📋 교사용」 화면에서 비밀번호를 넣고 모아 볼 수 있어요.</li>
         </ul>
@@ -208,8 +208,8 @@ dialog::backdrop{background:rgba(10,20,18,.6)}
 
     <section class="panel preview" aria-label="카드 미리보기">
       <div class="cards">
-        <figure><canvas id="cvFront" width="756" height="1056" aria-label="카드 앞면 미리보기"></canvas><figcaption>앞면</figcaption></figure>
-        <figure><canvas id="cvBack" width="756" height="1056" aria-label="카드 뒷면 미리보기"></canvas><figcaption>뒷면</figcaption></figure>
+        <figure><canvas id="cvFront" width="660" height="1020" aria-label="카드 앞면 미리보기"></canvas><figcaption>앞면</figcaption></figure>
+        <figure><canvas id="cvBack" width="660" height="1020" aria-label="카드 뒷면 미리보기"></canvas><figcaption>뒷면</figcaption></figure>
       </div>
       <p class="note">글을 쓰면 카드에 바로 보여요. 글이 길면 글자가 저절로 작아져요.</p>
     </section>
@@ -253,7 +253,7 @@ dialog::backdrop{background:rgba(10,20,18,.6)}
 
 <script>
 (() => {
-const W = 756, H = 1056;
+const W = 660, H = 1020;   // 55×85mm 포토카드, 12px/mm(약 305dpi)
 const CATS = {
   joy:   {name:'기쁨', bg:'#FFE07A', top:'#FFF3BF', deep:'#C98A00', paper:'#FFFAE6', ink:'#5A4300'},
   calm:  {name:'편안', bg:'#BFE3A6', top:'#E6F5DA', deep:'#4E8F33', paper:'#F2F9EC', ink:'#2E5520'},
@@ -473,48 +473,48 @@ function drawFront(ctx){
   const g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,c.top); g.addColorStop(.55,c.bg); g.addColorStop(1,c.bg);
   ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
   const r=rand(7); ctx.fillStyle=hexA(c.deep,.10);
-  for(let i=0;i<70;i++){ ctx.beginPath(); ctx.arc(r()*W, 150+r()*800, 2+r()*5, 0, Math.PI*2); ctx.fill(); }
+  for(let i=0;i<70;i++){ ctx.beginPath(); ctx.arc(r()*W, 150+r()*770, 2+r()*5, 0, Math.PI*2); ctx.fill(); }
   // title pill
-  ctx.font=`34px ${FD}`; const tt='신의 갯벌 마음 카드'; const tw=ctx.measureText(tt).width+56;
-  rr(ctx,(W-tw)/2,40,tw,62,31); ctx.fillStyle='rgba(255,255,255,.82)'; ctx.fill();
-  ctx.fillStyle=c.deep; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(tt,W/2,73);
+  ctx.font=`30px ${FD}`; const tt='신의 갯벌 마음 카드'; const tw=ctx.measureText(tt).width+56;
+  rr(ctx,(W-tw)/2,46,tw,58,29); ctx.fillStyle='rgba(255,255,255,.82)'; ctx.fill();
+  ctx.fillStyle=c.deep; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(tt,W/2,76);
   // category badge
   ctx.font=`26px ${FD}`; const cw=ctx.measureText(c.name).width+30;
-  rr(ctx,W-cw-34,52,cw,40,20); ctx.fillStyle=c.deep; ctx.fill(); ctx.fillStyle='#fff'; ctx.fillText(c.name,W-34-cw/2,74);
+  rr(ctx,W-cw-40,56,cw,40,20); ctx.fillStyle=c.deep; ctx.fill(); ctx.fillStyle='#fff'; ctx.fillText(c.name,W-40-cw/2,77);
   // circle
-  const cx=W/2, cy=430, R=262;
+  const cx=W/2, cy=420, R=232;
   ctx.beginPath(); ctx.arc(cx,cy+10,R+16,0,Math.PI*2); ctx.fillStyle=hexA(c.deep,.18); ctx.fill();
   ctx.beginPath(); ctx.arc(cx,cy,R+16,0,Math.PI*2); ctx.fillStyle='#FFFFFF'; ctx.fill();
   const rg=ctx.createRadialGradient(cx,cy-40,40,cx,cy,R); rg.addColorStop(0,'#FFFFFF'); rg.addColorStop(1,c.paper);
   ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fillStyle=rg; ctx.fill();
   ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.clip();
   if (S.cr==='upload' && S.upload && S.uploadFit==='contain'){
-    const im=S.upload, bw=470, s=bw/(im.naturalWidth||im.width), bh=(im.naturalHeight||im.height)*s;
+    const im=S.upload, bw=420, s=bw/(im.naturalWidth||im.width), bh=(im.naturalHeight||im.height)*s;
     ctx.drawImage(im, cx-bw/2, cy-bh/2+20, bw, bh);
   } else if (S.cr==='upload' && S.upload){
     const im=S.upload, s=Math.max(2*R/im.width, 2*R/im.height);
     ctx.drawImage(im, cx-im.width*s/2, cy-im.height*s/2, im.width*s, im.height*s);
   } else {
     const im=svgImg(S.cr==='upload'?'mudskipper':S.cr);
-    if (im.complete && im.naturalWidth){ const bw=470, s=bw/im.naturalWidth, bh=im.naturalHeight*s; ctx.drawImage(im, cx-bw/2, cy-bh/2+30, bw, bh); }
+    if (im.complete && im.naturalWidth){ const bw=420, s=bw/im.naturalWidth, bh=im.naturalHeight*s; ctx.drawImage(im, cx-bw/2, cy-bh/2+30, bw, bh); }
   }
   ctx.restore();
   ctx.lineWidth=6; ctx.strokeStyle=hexA(c.deep,.35); ctx.beginPath(); ctx.arc(cx,cy,R+16,0,Math.PI*2); ctx.stroke();
   decorate(ctx,S.cat,cx,cy,R+16);
   // waves
-  waves(ctx,962,14,380,hexA(c.deep,.22),0.6);
-  waves(ctx,995,12,300,hexA(c.deep,.38),2.2);
+  waves(ctx,928,13,340,hexA(c.deep,.22),0.6);
+  waves(ctx,960,11,270,hexA(c.deep,.38),2.2);
   // emotion word
   const emo=$('emo').value.trim()||'감정 이름';
   ctx.textAlign='center'; ctx.textBaseline='alphabetic';
-  fitText(ctx,emo,FD,138,60,640);
-  ctx.lineJoin='round'; ctx.lineWidth=18; ctx.strokeStyle='#FFFFFF'; ctx.strokeText(emo,W/2,860);
-  ctx.fillStyle=c.deep; ctx.fillText(emo,W/2,860);
+  fitText(ctx,emo,FD,128,56,560);
+  ctx.lineJoin='round'; ctx.lineWidth=18; ctx.strokeStyle='#FFFFFF'; ctx.strokeText(emo,W/2,815);
+  ctx.fillStyle=c.deep; ctx.fillText(emo,W/2,815);
   // creature name pill
   const nm=$('crname').value.trim()||'생물 이름';
   const ns=fitText(ctx,nm,FD,44,26,420); const nw=ctx.measureText(nm).width+64;
-  rr(ctx,(W-nw)/2,890,nw,68,34); ctx.fillStyle='rgba(255,255,255,.9)'; ctx.fill();
-  ctx.fillStyle=c.ink; ctx.textBaseline='middle'; ctx.fillText(nm,W/2,925);
+  rr(ctx,(W-nw)/2,846,nw,64,32); ctx.fillStyle='rgba(255,255,255,.9)'; ctx.fill();
+  ctx.fillStyle=c.ink; ctx.textBaseline='middle'; ctx.fillText(nm,W/2,879);
 }
 
 /* ---------- back ---------- */
@@ -532,16 +532,16 @@ function drawBack(ctx){
   const c=CATS[S.cat];
   ctx.fillStyle=c.paper; ctx.fillRect(0,0,W,H);
   // header band with wavy edge
-  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(W,0); ctx.lineTo(W,176);
-  for (let x=W;x>=0;x-=6) ctx.lineTo(x, 176 + Math.sin((x/250)*Math.PI*2+1)*10);
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(W,0); ctx.lineTo(W,166);
+  for (let x=W;x>=0;x-=6) ctx.lineTo(x, 166 + Math.sin((x/250)*Math.PI*2+1)*10);
   ctx.closePath(); const g=ctx.createLinearGradient(0,0,0,190); g.addColorStop(0,c.top); g.addColorStop(1,c.bg); ctx.fillStyle=g; ctx.fill();
   const title=`${$('emo').value.trim()||'감정'} ${$('crname').value.trim()||'생물'}`.trim();
   ctx.textAlign='center'; ctx.textBaseline='middle';
-  fitText(ctx,title,FD,82,40,660);
-  ctx.lineJoin='round'; ctx.lineWidth=12; ctx.strokeStyle='rgba(255,255,255,.85)'; ctx.strokeText(title,W/2,98);
-  ctx.fillStyle=c.deep; ctx.fillText(title,W/2,98);
+  fitText(ctx,title,FD,76,38,560);
+  ctx.lineJoin='round'; ctx.lineWidth=12; ctx.strokeStyle='rgba(255,255,255,.85)'; ctx.strokeText(title,W/2,94);
+  ctx.fillStyle=c.deep; ctx.fillText(title,W/2,94);
   const secs=[['shell','진짜 생태 이야기',$('eco').value],['heart','이럴 때 나도 이 감정이 들어요',$('when').value],['sprout','이 감정이 들 때 나를 돕는 방법',$('help').value]];
-  let y=226; const bx=42, bw=W-84, bh=212;
+  let y=208; const bx=40, bw=W-80, bh=200;
   for (const [k,h,t] of secs){
     ctx.save(); ctx.shadowColor=hexA(c.deep,.18); ctx.shadowBlur=18; ctx.shadowOffsetY=6;
     rr(ctx,bx,y,bw,bh,30); ctx.fillStyle='#FFFFFF'; ctx.fill(); ctx.restore();
@@ -550,22 +550,22 @@ function drawBack(ctx){
     fitText(ctx,h,FD,34,24,bw-120); ctx.fillText(h,bx+98,y+52);
     const txt=t.trim();
     if (txt){
-      const p=fitParagraph(ctx,txt,FB,40,26,bw-64,3);
+      const p=fitParagraph(ctx,txt,FB,36,24,bw-60,3);
       const lh=p.size*1.38, total=lh*p.lines.length, top=y+88+(bh-96-total)/2+lh/2;
       ctx.fillStyle='#2E2A26'; ctx.textAlign='center';
       p.lines.forEach((ln,i)=>ctx.fillText(ln,W/2,top+i*lh));
     } else {
       ctx.strokeStyle='#CFCFCF'; ctx.lineWidth=3; ctx.setLineDash([10,10]);
-      for (const ly of [y+126,y+176]){ ctx.beginPath(); ctx.moveTo(bx+34,ly); ctx.lineTo(bx+bw-34,ly); ctx.stroke(); }
+      for (const ly of [y+122,y+166]){ ctx.beginPath(); ctx.moveTo(bx+34,ly); ctx.lineTo(bx+bw-34,ly); ctx.stroke(); }
       ctx.setLineDash([]);
     }
-    y+=bh+22;
+    y+=bh+20;
   }
   ctx.textAlign='center'; ctx.textBaseline='middle';
   const team=$('team').value.trim(), maker=$('maker').value.trim();
-  ctx.fillStyle=c.ink; fitText(ctx,`만든 이 · ${team||'○모둠'} ${maker||'○○○'}`,FD,32,22,660);
+  ctx.fillStyle=c.ink; fitText(ctx,`만든 이 · ${team||'○모둠'} ${maker||'○○○'}`,FD,30,20,560);
   ctx.fillText(`만든 이 · ${team||'○모둠'} ${maker||'○○○'}`,W/2,y+30);
-  ctx.font=`25px ${FB}`; ctx.fillStyle=hexA(c.ink,.75); ctx.fillText('2026 신안신의중학교 해양생태 연구학교',W/2,y+76);
+  ctx.fillStyle=hexA(c.ink,.75); fitText(ctx,'2026 신안신의중학교 해양생태 연구학교',FB,24,16,560); ctx.fillText('2026 신안신의중학교 해양생태 연구학교',W/2,y+72);
 }
 
 /* ---------- render loop ---------- */
@@ -639,7 +639,8 @@ async function ask(text){
   if (busy || !text.trim()) return;
   const code=CLASS_CODE;
   addMsg('me', text);
-  busy=true; $('chatState').textContent='그리는 중…';
+  busy=true; const t0=Date.now(); const tick=()=>{ $('chatState').textContent='그리는 중… '+Math.round((Date.now()-t0)/1000)+'초'; }; tick(); const tickId=setInterval(tick,1000);
+  const waitMsg=addMsg('bot','🎨 그림을 그리고 있어요. 30초쯤 걸릴 수 있으니 기다려 줘요!');
   history.push({role:'user', content:text});
   try {
     const data = await call('chat', {code, messages: history.slice(-6)});
@@ -656,7 +657,7 @@ async function ask(text){
       addMsg('bot', data.text || '다시 한 번 말해 줄래요?');
     }
   } catch(err){ history.pop(); addMsg('bot', err.message); }
-  finally { busy=false; $('chatState').textContent=''; }
+  finally { busy=false; clearInterval(tickId); waitMsg.remove(); $('chatState').textContent=''; }
 }
 function sendChat(){ const v=$('chatInput').value; $('chatInput').value=''; ask(v); }
 $('chatSend').addEventListener('click', sendChat);
